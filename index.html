@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Colon Hub | NMU Medical Excellence</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Jost:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <style>
+        :root { 
+            --primary: #00d2ff; --secondary: #004e92; --accent: #ff4757; 
+            --dark: #0f172a; --light-blue: #f0f9ff; --nmu-gold: #c5a059;
+            --glass: rgba(255, 255, 255, 0.85);
+        }
+
+        /* --- 1. NEW CINEMATIC INTRO --- */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020617; z-index: 10000; display: flex; align-items: center; justify-content: center;
+            transition: all 1.2s cubic-bezier(0.9, 0, 0.1, 1);
+        }
+        .intro-content { text-align: center; z-index: 2; }
+        .intro-tag { 
+            font-size: 0.8rem; color: var(--primary); text-transform: uppercase; 
+            letter-spacing: 8px; font-weight: 700; margin-bottom: 10px;
+            opacity: 0; transform: translateY(20px); animation: revealUp 0.8s forwards 0.5s;
+        }
+        .intro-title { font-family: 'Cairo'; font-size: 3.5rem; font-weight: 900; color: white; line-height: 1.1; margin-bottom: 30px; }
+        .intro-title span { display: block; overflow: hidden; }
+        .intro-title b { 
+            display: block; transform: translateY(100%); 
+            animation: revealUp 1s cubic-bezier(0.77, 0, 0.175, 1) forwards 0.8s; 
+        }
+        .loader-wrapper { width: 250px; margin: 0 auto; opacity: 0; animation: fadeIn 0.5s forwards 1.5s; }
+        .loader-bar { height: 3px; width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; position: relative; }
+        .loader-progress { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--primary); animation: loadProgress 3s forwards; }
+        
+        @keyframes revealUp { to { transform: translateY(0); opacity: 1; } }
+        @keyframes loadProgress { to { width: 100%; } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        #intro-screen.fade-out { transform: scale(1.2); filter: blur(20px); opacity: 0; visibility: hidden; }
+
+        /* --- 2. GLOBAL STYLES --- */
+        body { font-family: 'Jost', sans-serif; background: #fff; color: var(--dark); overflow-x: hidden; scroll-behavior: smooth; }
+        h1, h2, h3, h4 { font-family: 'Cairo', sans-serif; text-transform: uppercase; }
+        .stop-scroll { overflow: hidden; }
+        
+        /* Navbar */
+        .navbar { background: var(--glass); backdrop-filter: blur(15px); padding: 15px 0; border-bottom: 1px solid #eee; transition: 0.4s; }
+        .navbar-brand { font-weight: 900; font-size: 1.8rem; }
+
+        /* Cards */
+        .glass-card { 
+            background: white; border-radius: 25px; border: 1px solid #f0f0f0; transition: 0.4s; 
+            height: 100%; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.03); 
+        }
+        .glass-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); border-color: var(--primary); }
+        
+        /* Hero */
+.hero-wrap { 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    color: white;
+    
+    /* 1. الطبقة الشفافة الغامقة عشان الكلام يبان */
+    /* 2. مسار الصورة اللي رفعتها يدوياً */
+    background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                url('mmm.jpeg'); 
+    
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; 
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 0% 100%);
+    
+    /* إضافة تحسينات لضمان ثبات الشكل */
+    background-repeat: no-repeat;
+}
+
+        /* Video Section */
+        .video-thumb { position: relative; border-radius: 20px; overflow: hidden; border: 5px solid #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: 0.3s; }
+        .video-thumb:hover { transform: scale(1.02); }
+
+        /* Student Meeting Section (New) */
+        .meeting-img { height: 250px; width: 100%; object-fit: cover; transition: 0.5s; }
+        .glass-card:hover .meeting-img { transform: scale(1.1); }
+        .section-tag { color: var(--primary); font-weight: 800; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 10px; }
+
+        .floating-survey { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
+    </style>
+</head>
+<body class="stop-scroll">
+
+    <div id="intro-screen">
+        <div class="intro-content">
+            <div class="intro-tag">Faculty of Medicine</div>
+            <h1 class="intro-title">
+                <span><b>NEW MANSOURA</b></span>
+                <span style="color: var(--primary);"><b>UNIVERSITY</b></span>
+            </h1>
+            <div class="loader-wrapper text-center">
+                <div class="loader-bar"><div class="loader-progress"></div></div>
+                <div class="text-white-50 small mt-3 fw-light" style="letter-spacing: 3px;">RESEARCH HUB INITIALIZING...</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">COLON<span class="text-primary">HUB</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto fw-bold">
+                    <!-- <li class="nav-item"><a class="nav-link" href="#articles">Articles</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#meetings">Community</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#videos">Videos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#diet">Nutrition</a></li> -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-wrap">
+        <div class="container" data-aos="fade-up">
+            <div class="col-lg-8">
+                <span class="section-tag text-white">NMU Faculty of Medicine</span>
+                <h1 class="display-1 fw-black">Precision <br><span class="text-primary">Awareness.</span></h1>
+                <p class="lead mb-5 fs-4 opacity-75">A professional medical portal dedicated to colorectal research, student collaboration, and Hospital 57357 support.</p>
+                <div class="d-flex gap-3">
+                    <a href="#cancer-insight" class="btn btn-primary btn-lg rounded-pill px-5 shadow">Get Started</a>
+                    <a href="#donate" class="btn btn-outline-light btn-lg rounded-pill px-5">Support 57357</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section id="cancer-insight" class="py-5" style="background: linear-gradient(180deg, #fff 0%, var(--light-blue) 100%);">
+        <div class="container py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <span class="section-tag">Clinical Overview</span>
+                    <h2 class="display-5 fw-black mb-4">Understanding <span class="text-primary">Colorectal Cancer</span></h2>
+                    <p class="lead text-dark fw-normal mb-4">
+                        Colorectal cancer (CRC) starts in the colon or rectum. It often begins as small growths called polyps. While it is one of the most common cancers worldwide, it is also **one of the most preventable** through regular screening and early intervention.
+                    </p>
+                    
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fas fa-microscope small"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Early Detection</h6>
+                                    <p class="small text-muted">90% survival rate if caught in early stages.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                    <i class="fas fa-apple-whole small"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Lifestyle Risk</h6>
+                                    <p class="small text-muted">Diet and activity play a key role in prevention.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 p-4 bg-white rounded-4 border-start border-primary border-4 shadow-sm">
+                        <p class="mb-0 fs-6 italic text-secondary">
+                            "Screening is the most powerful tool we have against colorectal cancer. It can actually prevent the disease by finding and removing polyps before they turn into cancer."
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="position-relative">
+                        <img src="https://images.pexels.com/photos/7089020/pexels-photo-7089020.jpeg?auto=compress&cs=tinysrgb&w=800" 
+                             alt="Medical Awareness" class="img-fluid rounded-5 shadow-lg">
+                        
+                        <div class="position-absolute top-0 end-0 m-4 p-3 glass-card border-0 shadow-lg text-center" style="background: rgba(255,255,255,0.95); width: 140px;">
+                            <h3 class="fw-black text-primary mb-0">90%</h3>
+                            <p class="small fw-bold text-uppercase mb-0" style="font-size: 0.7rem;">Preventable</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="meetings" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="section-tag">NMU Community</span>
+                <h2 class="display-4 fw-black">Student Collaboration</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <div class="glass-card">
+                        <a href="https://drive.google.com/drive/folders/1Vj3q0D_EN1ALvDQCLIuIpO8MGTrgABRy" target="_blank">
+                        <img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 6">
+                        </a>
+                        <div class="p-4"><h5>Team Work</h5><p class="small text-muted">Academic supervision and final project validation.</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="glass-card">
+                        <a href="https://drive.google.com/drive/folders/1-NCDce8Zgau6_dUf5Sy-mHiV2EYL4fwp" target="_blank">
+                        <img src="https://images.pexels.com/photos/1181398/pexels-photo-1181398.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 2">
+                        </a>
+                        <div class="p-4"><h5>Awareness Workshop</h5><p class="small text-muted">Collaborative efforts for the 57357 support campaign.</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="glass-card">
+                        <a href="https://forms.gle/fG5HiSnKRxdDd7uJ9" target="_blank">
+                        <img src="https://images.pexels.com/photos/7129007/pexels-photo-7129007.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 3">
+                        </a>
+                        <div class="p-4"><h5>Survay</h5><p class="small text-muted">Planning the technical infrastructure of the Colon Hub.</p></div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <!-- <div class="glass-card">
+                        <img src="https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 4">
+                        <div class="p-4"><h5>Field Coordination</h5><p class="small text-muted">Organizing on-ground awareness activities for the faculty.</p></div>
+                    </div> -->
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <!-- <div class="glass-card">
+                        <img src="https://images.pexels.com/photos/7092613/pexels-photo-7092613.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 5">
+                        <div class="p-4"><h5>Data Analysis Hub</h5><p class="small text-muted">A deep dive into the 20 charts of clinical analytics.</p></div>
+                    </div> -->
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <!-- <div class="glass-card">
+                        <img src="https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=600" class="meeting-img" alt="Social 6">
+                        <div class="p-4"><h5>Faculty Roundtable</h5><p class="small text-muted">Academic supervision and final project validation.</p></div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+    </section>
+<section id="videos" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <span class="section-tag">Educational Media</span>
+                <h2 class="display-4 fw-black">Medical Video Library</h2>
+            </div>
+            <div class="row g-4 text-center">
+                
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in">
+                    <a href="https://www.youtube.com/watch?v=y2Bg-spJAG0" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/y2Bg-spJAG0/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 1">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">Understanding Colorectal Cancer</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                    <a href="https://www.youtube.com/watch?v=ZA4xFrtCeZg" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/ZA4xFrtCeZg/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 2">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">IBD: Crohn's vs Ulcerative Colitis</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <a href="https://www.youtube.com/watch?v=H5zin8jKeT0" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/H5zin8jKeT0/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 3">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">Who is at risk? (TED-Ed)</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in">
+                    <a href="https://www.youtube.com/watch?v=fW4Y_poPPxg" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/fW4Y_poPPxg/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 4">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">Common Colon Cancer Symptoms</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                    <a href="https://www.youtube.com/watch?v=7SalblkGacg" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/7SalblkGacg/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 5">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">The Importance of Early Detection</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <a href="https://www.youtube.com/watch?v=riCfjxRh9fQ" target="_blank" class="text-decoration-none">
+                        <div class="video-thumb shadow-sm">
+                            <img src="https://img.youtube.com/vi/riCfjxRh9fQ/maxresdefault.jpg" class="img-fluid rounded-4" alt="Video 6">
+                            <div class="play-btn"><i class="fas fa-play"></i></div>
+                        </div>
+                        <p class="small fw-bold mt-3 text-secondary text-uppercase">Colonoscopy: What to Expect</p>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .video-thumb { position: relative; cursor: pointer; transition: 0.3s; border: 5px solid #fff; }
+        .video-thumb:hover { transform: translateY(-5px); }
+        .play-btn {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 60px; height: 60px; background: rgba(0, 210, 255, 0.9);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 20px; transition: 0.3s;
+        }
+        .video-thumb:hover .play-btn { background: #ff4757; scale: 1.1; }
+    </style>
+    <section id="donate" class="py-5">
+        <div class="container text-center">
+            <div class="bg-primary p-5 rounded-5 text-white shadow-lg" data-aos="flip-up">
+                <h2 class="display-3 fw-black mb-4">Support Hospital 57357</h2>
+                <div class="d-flex justify-content-center gap-4 flex-wrap mt-5 align-items-center">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://57357.org" class="bg-white p-3 rounded-4 shadow" alt="QR">
+                    <a href="https://57357.org" target="_blank" class="btn btn-dark btn-lg rounded-pill px-5 fs-2 fw-bold">DONATE NOW</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-5 text-center bg-white border-top">
+        <h3 class="fw-black mb-0">COLON<span class="text-primary">HUB</span></h3>
+        <p class="small fw-bold text-uppercase mt-4 opacity-50">Designed & Developed by <span class="text-primary">Team N.M</span> | NMU 2026</p>
+    </footer>
+
+    <div class="floating-survey">
+        <a href="chart.html" class="btn btn-primary btn-lg rounded-circle shadow-lg p-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+            <i class="fa-solid fa-chart-pie fa-2x"></i>
+        </a>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true });
+
+        // Intro Controller
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('intro-screen');
+                intro.classList.add('fade-out');
+                setTimeout(() => {
+                    document.body.classList.remove('stop-scroll');
+                }, 800);
+            }, 3500); // 3.5 seconds to show cinematic effect
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

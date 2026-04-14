@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>NMU | Clinical Analytics Hub</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <style>
+        :root { 
+            --primary: #00d2ff; --secondary: #004e92; --dark-blue: #001f3f;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #34495e;
+            --summary-bg: rgba(0, 210, 255, 0.08);
+        }
+
+        body { 
+            background: linear-gradient(135deg, #f0f4f8 0%, #dce6f0 100%);
+            background-attachment: fixed;
+            font-family: 'Jost', sans-serif; 
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+        
+        h2, h3 { font-family: 'Cairo', sans-serif; font-weight: 800; color: var(--dark-blue); letter-spacing: -1px; }
+        h4 { font-family: 'Cairo', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--secondary); margin-bottom: 15px; }
+
+        /* --- Sidebar Logic --- */
+        .sidebar {
+            width: 280px; height: 90vh; background: rgba(0, 31, 63, 0.96); backdrop-filter: blur(20px);
+            position: fixed; left: 20px; top: 5vh; border-radius: 30px; z-index: 1200;
+            border: 1px solid rgba(255,255,255,0.1); padding: 40px 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar a {
+            padding: 12px 25px; display: flex; align-items: center; color: rgba(255,255,255,0.6);
+            text-decoration: none; transition: 0.3s; font-size: 0.88rem; margin: 3px 15px; border-radius: 12px;
+        }
+
+        .sidebar a:hover, .sidebar a.active { background: linear-gradient(45deg, var(--primary), #00a8cc); color: var(--dark-blue); font-weight: 600; }
+
+        /* --- Mobile Nav --- */
+        .mobile-header {
+            display: none; background: var(--dark-blue); color: white;
+            padding: 15px 20px; position: fixed; top: 0; width: 100%; z-index: 1100;
+            justify-content: space-between; align-items: center;
+        }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1150; backdrop-filter: blur(4px);
+        }
+
+        .main-content { margin-left: 320px; padding: 40px; transition: 0.4s; }
+
+        @media (max-width: 992px) {
+            .mobile-header { display: flex; }
+            .sidebar { left: -300px; top: 0; height: 100vh; border-radius: 0; width: 260px; }
+            .sidebar.active { left: 0; }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; padding: 100px 20px 40px 20px; }
+        }
+
+        /* --- Cards --- */
+        .chart-card { 
+            background: var(--glass-bg); backdrop-filter: blur(15px); border-radius: 25px; padding: 25px; 
+            border: 1px solid var(--glass-border); height: 100%; display: flex; flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s;
+        }
+        .chart-card:hover { transform: translateY(-5px); background: #fff; }
+        .chart-container { position: relative; height: 200px; width: 100%; margin-bottom: 15px; }
+        .summary-box {
+            font-size: 0.8rem; line-height: 1.5; padding: 10px;
+            background: var(--summary-bg); border-radius: 12px; border-left: 3px solid var(--primary);
+            margin-top: auto;
+        }
+
+        #scroll-progress { position: fixed; top: 0; left: 0; height: 5px; background: var(--primary); z-index: 2000; width: 0%; transition: 0.1s; }
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress"></div>
+
+    <div class="mobile-header shadow">
+        <h6 class="mb-0 fw-bold">NMU ANALYTICS</h6>
+        <button class="btn text-white" id="menuBtn"><i class="fa-solid fa-bars-staggered fs-3"></i></button>
+    </div>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="text-center mb-4">
+            <h5 class="text-white fw-bold">NMU HUB</h5>
+            <div style="width: 30px; height: 2px; background: var(--primary); margin: 5px auto;"></div>
+        </div>
+        <a href="#sec1" class="active"><i class="fa-solid fa-users me-2"></i> Demographics</a>
+        <a href="#sec2"><i class="fa-solid fa-utensils me-2"></i> Lifestyle</a>
+        <a href="#sec3"><i class="fa-solid fa-stethoscope me-2"></i> Symptoms</a>
+        <a href="#sec4"><i class="fa-solid fa-notes-medical me-2"></i> Clinical</a>
+        <div style="margin-top: 40px;"><a href="index.html" style="background: rgba(255,255,255,0.1);"><i class="fa-solid fa-arrow-left me-2"></i> Back Home</a></div>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+            <h2 class="mb-0">Research <span class="text-primary">Data Viz</span></h2>
+            <span class="badge bg-white text-dark shadow-sm p-2 px-3 border rounded-pill">Status: Active Analytics 2026</span>
+        </div>
+
+        <h3 id="sec1" class="mb-4 text-secondary">I. Demographics (1-5)</h3>
+        <div class="row g-4 mb-5">
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>1. Age Distribution</h4><div class="chart-container"><canvas id="c1"></canvas></div><div class="summary-box">65.1% of participants are in the 18-22 age group.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>2. Gender Ratio</h4><div class="chart-container"><canvas id="c2"></canvas></div><div class="summary-box">Female participation is higher at 65.1%.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>3. Academic Field</h4><div class="chart-container"><canvas id="c3"></canvas></div><div class="summary-box">79.1% from medical faculties.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>4. Weight Range (kg)</h4><div class="chart-container"><canvas id="c4"></canvas></div><div class="summary-box">Median weight falls between 70-75kg.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>5. Height Range (cm)</h4><div class="chart-container"><canvas id="c5"></canvas></div><div class="summary-box">Majority cluster between 165-175cm.</div></div></div>
+        </div>
+
+        <h3 id="sec2" class="mb-4 text-secondary">II. Diet & Lifestyle (6-11)</h3>
+        <div class="row g-4 mb-5">
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>6. Healthy Diet</h4><div class="chart-container"><canvas id="c6"></canvas></div><div class="summary-box">Only 7% strictly follow a healthy diet.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>7. Fast Food Weekly</h4><div class="chart-container"><canvas id="c7"></canvas></div><div class="summary-box">25.6% eat fast food multiple times a week.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>8. Fried Food Preference</h4><div class="chart-container"><canvas id="c8"></canvas></div><div class="summary-box">High fried food consumption is evident.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>9. Soft Drinks Daily</h4><div class="chart-container"><canvas id="c9"></canvas></div><div class="summary-box">25.6% consume soft drinks daily.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>10. Water Intake</h4><div class="chart-container"><canvas id="c10"></canvas></div><div class="summary-box">62.8% drink 1-2 liters daily.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>11. Fruit/Veg Servings</h4><div class="chart-container"><canvas id="c11"></canvas></div><div class="summary-box">Most eat only 1 serving per day.</div></div></div>
+        </div>
+
+        <h3 id="sec3" class="mb-4 text-secondary">III. Digestive Symptoms (12-15)</h3>
+        <div class="row g-4 mb-5">
+            <div class="col-md-6"><div class="chart-card"><h4>12. Symptom Frequency</h4><div class="chart-container"><canvas id="c12"></canvas></div><div class="summary-box">23.3% experience chronic symptoms.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>13. Reported Issues</h4><div class="chart-container"><canvas id="c13"></canvas></div><div class="summary-box">Pain (39.5%) and Bloating (37.2%) are primary.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>14. Spicy Food Impact</h4><div class="chart-container"><canvas id="c14"></canvas></div><div class="summary-box">25.6% eat spicy food daily.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>15. Fast Food Irritation</h4><div class="chart-container"><canvas id="c15"></canvas></div><div class="summary-box">32.6% confirm fast food triggers pain.</div></div></div>
+        </div>
+
+        <h3 id="sec4" class="mb-4 text-secondary">IV. Clinical Overview (16-20)</h3>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>16. Known Diagnoses</h4><div class="chart-container"><canvas id="c16"></canvas></div><div class="summary-box">14% have IBS or Colitis diagnoses.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>17. Stress Levels</h4><div class="chart-container"><canvas id="c17"></canvas></div><div class="summary-box">44.2% report very high stress levels.</div></div></div>
+            <div class="col-lg-4 col-md-6"><div class="chart-card"><h4>18. Sleep Hours</h4><div class="chart-container"><canvas id="c18"></canvas></div><div class="summary-box">58.1% sleep 5-7 hours.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>19. Exercise Frequency</h4><div class="chart-container"><canvas id="c19"></canvas></div><div class="summary-box">39.5% do not exercise regularly.</div></div></div>
+            <div class="col-md-6"><div class="chart-card"><h4>20. Processed Meats</h4><div class="chart-container"><canvas id="c20"></canvas></div><div class="summary-box">27.9% consume processed meats daily.</div></div></div>
+        </div>
+    </div>
+
+    <script>
+        // Sidebar Toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        function toggle() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        menuBtn.onclick = toggle;
+        overlay.onclick = toggle;
+        document.querySelectorAll('.sidebar a').forEach(a => a.onclick = () => { if(window.innerWidth < 992) toggle(); });
+
+        // Scroll Progress
+        window.onscroll = () => {
+            let winScroll = document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            document.getElementById("scroll-progress").style.width = (winScroll / height) * 100 + "%";
+        };
+
+        // Chart Utils
+        const getPct = (v, ctx) => (v / ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) * 100).toFixed(1) + '%';
+        const pCfg = { type: 'pie', plugins: [ChartDataLabels], options: { maintainAspectRatio: false, plugins: { datalabels: { color: '#fff', formatter: getPct, font: { weight: '600', size: 9 } }, legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } } } };
+        const bCfg = { type: 'bar', plugins: [ChartDataLabels], options: { maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'top', color: '#004e92', font: { size: 9, weight: '700' } } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } } };
+        const dCfg = { ...pCfg, type: 'doughnut', options: { ...pCfg.options, cutout: '65%' } };
+
+        // Render 20 Charts
+        new Chart(document.getElementById('c1'), { ...pCfg, data: { labels: ['<18', '18-22', '23-30', '>30'], datasets: [{ data: [50, 175, 20, 70], backgroundColor: ['#00d2ff', '#4CAF50', '#FF9800', '#F44336'] }] } });
+        new Chart(document.getElementById('c2'), { ...pCfg, data: { labels: ['Male', 'Female'], datasets: [{ data: [78, 102], backgroundColor: ['#004e92', '#ff6384'] }] } });
+        new Chart(document.getElementById('c3'), { ...dCfg, data: { labels: ['Med', 'Non-Med', 'HS', 'Other'], datasets: [{ data: [154, 63, 38, 10], backgroundColor: ['#001f3f', '#00d2ff', '#FFCE56', '#4CAF50'] }] } });
+        new Chart(document.getElementById('c4'), { ...bCfg, data: { labels: ['47', '60', '75', '85', '100+'], datasets: [{ data: [16, 20, 135, 18, 20], backgroundColor: '#00d2ff' }] } });
+        new Chart(document.getElementById('c5'), { ...bCfg, data: { labels: ['155', '165', '175', '185+'], datasets: [{ data: [20, 135, 35, 49], backgroundColor: '#004e92' }] } });
+        new Chart(document.getElementById('c6'), { ...pCfg, data: { labels: ['Yes', 'No', 'Sometimes'], datasets: [{ data: [30, 102, 156], backgroundColor: ['#2ecc71', '#e74c3c', '#f1c40f'] }] } });
+        new Chart(document.getElementById('c7'), { ...dCfg, data: { labels: ['Month', 'Week', '3-5x/wk', 'Daily'], datasets: [{ data: [180, 75, 49, 10], backgroundColor: ['#4CAF50', '#FF9800', '#F44336', '#9C27B0'] }] } });
+        new Chart(document.getElementById('c8'), { ...pCfg, data: { labels: ['Yes', 'Some', 'No'], datasets: [{ data: [170, 60, 25], backgroundColor: ['#e67e22', '#f1c40f', '#3498db'] }] } });
+        new Chart(document.getElementById('c9'), { ...dCfg, data: { labels: ['Never', 'Month', 'Week', 'Daily'], datasets: [{ data: [80, 44, 112, 22], backgroundColor: ['#4CAF50', '#f1c40f', '#e67e22', '#e74c3c'] }] } });
+        new Chart(document.getElementById('c10'), { ...bCfg, data: { labels: ['<1L', '1-2L', '>2L'], datasets: [{ data: [40, 180, 40], backgroundColor: '#00d2ff' }] } });
+        new Chart(document.getElementById('c11'), { ...dCfg, data: { labels: ['None', '1 Sv', '2-3 Sv'], datasets: [{ data: [20, 119, 81], backgroundColor: ['#e74c3c', '#FFCE56', '#4CAF50'] }] } });
+        new Chart(document.getElementById('c12'), { ...dCfg, data: { labels: ['No', 'Some', 'Always'], datasets: [{ data: [127, 113, 17], backgroundColor: ['#4CAF50', '#FFCE56', '#F44336'] }] } });
+        new Chart(document.getElementById('c13'), { ...bCfg, data: { labels: ['Pain', 'Bloat', 'Const', 'Gas'], datasets: [{ data: [139, 85, 27, 18], backgroundColor: '#e67e22' }] } });
+        new Chart(document.getElementById('c14'), { ...pCfg, data: { labels: ['Rare', 'Some', 'Daily'], datasets: [{ data: [130, 80, 54], backgroundColor: ['#36A2EB', '#4CAF50', '#F44336'] }] } });
+        new Chart(document.getElementById('c15'), { ...pCfg, data: { labels: ['Yes', 'No', 'Unsure'], datasets: [{ data: [146, 123, 31], backgroundColor: ['#F44336', '#36A2EB', '#FFCE56'] }] } });
+        new Chart(document.getElementById('c16'), { ...bCfg, data: { labels: ['IBS', 'IBD', 'Colitis', 'None'], datasets: [{ data: [60, 10, 60, 26], backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4CAF50'] }] } });
+        new Chart(document.getElementById('c17'), { ...dCfg, data: { labels: ['Low', 'Med', 'High'], datasets: [{ data: [30, 86, 44], backgroundColor: ['#4CAF50', '#FFCE56', '#F44336'] }] } });
+        new Chart(document.getElementById('c18'), { ...dCfg, data: { labels: ['<5h', '5-7h', '>7h'], datasets: [{ data: [50, 32, 16], backgroundColor: ['#F44336', '#FFCE56', '#4CAF50'] }] } });
+        new Chart(document.getElementById('c19'), { ...pCfg, data: { labels: ['Reg', 'Some', 'No'], datasets: [{ data: [40, 69, 95], backgroundColor: ['#4CAF50', '#FFCE56', '#F44336'] }] } });
+        new Chart(document.getElementById('c20'), { ...dCfg, data: { labels: ['Rare', 'Week', 'Daily'], datasets: [{ data: [134, 106, 97], backgroundColor: ['#4CAF50', '#FF9800', '#F44336'] }] } });
+    </script>
+</body>
+</html>
